@@ -24,3 +24,18 @@ class Solution {
         return res;
     }
 }
+
+/* calculation :
+    pb - pa = k 
+    where pb is prefixSum at b and pa is prefixSum at a and k is the prefixSum in range pa+1 to pb
+    -> pb - pa = k 
+    
+    -> pb%x - pa%x = k%x
+    
+    -> (pb - pa)%x = 0
+    
+    -> pb%x = pa%x   --> final expression so if we have a reminder present in hashmap before then we will have a subarray sum divisible by k.
+    
+    // to avoid negative cases 
+    if rem < 0 add + x to the rem 
+    */
