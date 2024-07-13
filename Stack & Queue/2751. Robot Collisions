@@ -1,0 +1,70 @@
+class Solution {
+    public List<Integer> survivedRobotsHealths(int[] positions, int[] healths, String directions) {
+        int n = positions.length;
+        RobotStatus[] robotStatus = new RobotStatus[n];
+        
+        //make a robotstatus array to store and sort it according to positions
+        for(int i=0; i<n; i++){
+            int position = positions[i];
+            int health = healths[i];
+            char direction = directions.charAt(i);
+            robotStatus[i] = new RobotStatus(position,health,direction,i);      
+        }
+        
+        //sort the robotstatus array:
+        Arrays.sort(robotStatus, (x,y) -> Integer.compare(x.position,y.position));
+        
+        //algorithm : 
+        Stack<RobotStatus> st = new Stack<>();
+        
+        for(int i=0; i<n; i++){
+            RobotStatus robot = robotStatus[i];
+            if(robot.direction == 'R'){
+                st.push(robot);
+            }else{
+                while(!st.isEmpty() && st.peek().direction != 'L' && robot.health != 0){
+                    
+                    if(st.peek().health == robot.health){
+                        robot.health = 0;
+                        st.pop();
+                    }else if(st.peek().health > robot.health){
+                        st.peek().health -= 1;
+                        robot.health = 0;
+                    }else{
+                        st.pop();
+                        robot.health -= 1;
+                    }
+                }
+                if(robot.health != 0){
+                    st.push(robot);
+                }  
+            }     
+        }
+        
+        st.sort((a,b)-> a.inputIdx-b.inputIdx );
+        Stack<RobotStatus> revSt = new Stack<>();
+        while(!st.isEmpty()){
+            revSt.push(st.pop());
+        }
+        
+        List<Integer> result = new ArrayList<>();
+        while(!revSt.isEmpty()){
+            result.add(revSt.pop().health);
+        }
+        
+        return result;
+    }
+}
+
+class RobotStatus{
+    int position;
+    int health;
+    char direction;
+    int inputIdx;
+    public RobotStatus(int _position, int _health, char _direction, int _inputIdx){
+        this.position = _position;
+        this.health = _health;
+        this.direction = _direction;
+        this.inputIdx = _inputIdx;
+    }
+}
