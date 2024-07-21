@@ -1,0 +1,66 @@
+class Solution {
+    public int[][] buildMatrix(int k, int[][] rowConditions, int[][] colConditions) {
+        ArrayList<Integer> rowOrder = getTopoSortOrder(k,rowConditions);
+        ArrayList<Integer> colOrder = getTopoSortOrder(k,colConditions);
+        
+        if(rowOrder.size() != k || colOrder.size() != k){
+            return new int[0][0];
+        }
+        
+        int[][] resultantMat = new int[k][k];
+        HashMap<Integer,Integer> mapJ = new HashMap<>();
+        for(int i=0; i<colOrder.size(); i++){
+            mapJ.put(colOrder.get(i),i);
+        }
+        
+        for(int i=0; i<rowOrder.size(); i++){
+            int ele = rowOrder.get(i);
+            int j = mapJ.get(ele);
+            
+            resultantMat[i][j] = ele;
+        }
+        
+        return resultantMat;
+    }
+    
+    private ArrayList<Integer> getTopoSortOrder(int k, int[][] conditions){
+        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+        
+        for(int i=0; i<=k; i++){
+            graph.add(new ArrayList<>());
+        }
+        
+        int[] inDegree = new int[k+1];
+        
+        for(int[] arr : conditions){
+            int src = arr[0];
+            int dest = arr[1];
+            
+            graph.get(src).add(dest);
+            inDegree[dest]++;
+        }
+        
+        Queue<Integer> queue = new LinkedList<>();
+        
+        for(int i=1; i<=k; i++){
+            if(inDegree[i] == 0){
+                queue.add(i);
+            }
+        }
+        
+        ArrayList<Integer> sortedOrder = new ArrayList<>();
+        
+        while(!queue.isEmpty()){
+            int node = queue.remove();
+            sortedOrder.add(node);
+            for(int dest : graph.get(node)){
+                inDegree[dest]--;
+                if(inDegree[dest] == 0){
+                    queue.add(dest);
+                }
+            }
+        }
+        
+        return sortedOrder;
+    }
+}
