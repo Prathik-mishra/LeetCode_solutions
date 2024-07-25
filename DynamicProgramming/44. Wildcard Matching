@@ -1,0 +1,99 @@
+class Solution {
+    public boolean isMatch(String s, String p) {
+        // return recur(s,p,0,0);
+        // int[][] dp = new int[s.length()][p.length()];
+        // for(int i=0; i<s.length(); i++){
+        //     Arrays.fill(dp[i],-1);
+        // }
+        // return memo(s,p,0,0,dp) == 1 ? true : false;
+        return tabulation(s,p);
+    }
+    
+    private boolean recur(String s, String p, int i, int j){
+        if(i == s.length() && j == p.length()) return true;
+        if(i == s.length()){
+            for(int x=j; x<p.length(); x++){
+                if(p.charAt(x) != '*'){
+                    return false;
+                }
+            }
+            return true;
+        } 
+        if(j == p.length()) return false;
+        
+        if(p.charAt(j) == '?'){
+            return recur(s,p,i+1,j+1);
+        }else if(p.charAt(j) == '*'){
+            boolean take = recur(s,p,i+1,j);
+            boolean takeAndMove = recur(s,p,i+1,j+1);
+            boolean notTake = recur(s,p,i,j+1);
+            return (take || notTake || takeAndMove);
+        }else{
+            if(s.charAt(i) == p.charAt(j)){
+                return recur(s,p,i+1,j+1);
+            }else{
+                return false;
+            }
+        }
+    }
+    
+    private int memo(String s, String p, int i, int j,int[][] dp){
+        if(i == s.length() && j == p.length()) return 1;
+        if(i == s.length()){
+            for(int x=j; x<p.length(); x++){
+                if(p.charAt(x) != '*'){
+                    return 0;
+                }
+            }
+            return 1;
+        } 
+        if(j == p.length()) return 0;
+        
+        if(dp[i][j] != -1) return dp[i][j];
+        
+        if(p.charAt(j) == '?'){
+            return dp[i][j] = memo(s,p,i+1,j+1,dp);
+        }else if(p.charAt(j) == '*'){
+            int take = memo(s,p,i+1,j,dp);
+            int takeAndMove = memo(s,p,i+1,j+1,dp);
+            int notTake = memo(s,p,i,j+1,dp);
+            return dp[i][j] = (take == 1 || notTake == 1 || takeAndMove == 1) ? 1 : 0;
+        }else{
+            if(s.charAt(i) == p.charAt(j)){
+                return dp[i][j] = memo(s,p,i+1,j+1,dp);
+            }else{
+                return dp[i][j] = 0;
+            }
+        }
+    }
+    
+    private boolean tabulation(String s, String p){
+        boolean[][] dp = new boolean[p.length()+1][s.length()+1];
+        
+        dp[0][0] = true; 
+        for(int i=1; i<=p.length(); i++){
+            if(p.charAt(i-1) != '*') break;
+            dp[i][0] = true;
+        }
+        
+        for(int i=1; i <= p.length(); i++){
+            for(int j=1; j <= s.length(); j++){
+                
+                if(p.charAt(i-1) == '?'){
+                    dp[i][j] = dp[i-1][j-1]; 
+                }else if(p.charAt(i-1) == '*'){
+                    boolean take = dp[i-1][j];         
+                    boolean takeAndMove = dp[i-1][j-1]; 
+                    boolean notTake = dp[i][j-1];      
+                    dp[i][j] = (take || notTake|| takeAndMove);
+                }else{
+                    if(s.charAt(j-1) == p.charAt(i-1)){
+                        dp[i][j] = dp[i-1][j-1];
+                    }
+                }
+            }
+        }
+        
+        return dp[p.length()][s.length()];
+    }
+}
